@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة تحدي تشريح العظام 💀💪</title>
+    <style>
+        :root {
+            --primary-color: #34495e;
+            --accent-color: #27ae60;
+            --danger-color: #c0392b;
+            --bg-color: #f4f6f7;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 10px;
+            color: #333;
+        }
+
+        header {
+            text-align: center;
+            background: linear-gradient(135deg, #2c3e50, #4ca1af);
+            color: white;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* الشاشة الرئيسية */
+        #home-screen {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .section-btn {
+            background-color: white;
+            border: 2px solid var(--primary-color);
+            padding: 15px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            color: var(--primary-color);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .section-btn:hover {
+            background-color: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* شاشة اللعبة */
+        #game-screen {
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 10px 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .back-btn {
+            background-color: #7f8c8d;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        .back-btn:hover {
+            background-color: #6c7a89;
+        }
+
+        .image-container {
+            position: relative;
+            width: 100%;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            text-align: center;
+            padding: 5px;
+        }
+
+        .image-container img {
+            width: 100%;
+            height: auto;
+            display: block;
+            max-height: 520px;
+            object-fit: contain;
+        }
+
+        /* تصميم الفراغات فوق الصورة بدقة تامة وبدون تداخل */
+        .drop-zone {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px dashed var(--primary-color);
+            padding: 2px 6px;
+            font-size: 0.62rem;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            transform: translate(-50%, -50%);
+            white-space: nowrap;
+            z-index: 10;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            max-width: 130px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .drop-zone.correct {
+            background-color: #2ecc71 !important;
+            color: white;
+            border-color: #27ae60;
+        }
+
+        .drop-zone.incorrect {
+            background-color: #e74c3c !important;
+            color: white;
+            border-color: #c0392b;
+        }
+
+        /* شريط الخيارات في الأسفل */
+        .options-container {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .options-title {
+            font-size: 0.95rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-align: center;
+            color: #2c3e50;
+        }
+
+        .options-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            max-height: 160px;
+            overflow-y: auto;
+            padding: 5px;
+        }
+
+        .option-item {
+            background-color: #ecf0f1;
+            border: 1px solid #bdc3c7;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.82rem;
+            font-weight: bold;
+            transition: all 0.2s;
+            user-select: none;
+        }
+
+        .option-item:hover {
+            background-color: #d0d7de;
+        }
+
+        .option-item.selected {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .option-item.used {
+            opacity: 0.35;
+            pointer-events: none;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .btn-submit {
+            flex: 1;
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-submit:hover {
+            background-color: #219653;
+        }
+
+        .btn-reset {
+            background-color: #e67e22;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-reset:hover {
+            background-color: #d35400;
+        }
+
+        #result-box {
+            text-align: center;
+            font-weight: bold;
+            font-size: 1rem;
+            padding: 12px;
+            border-radius: 8px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>لعبة تحدي تشريح العظام 💀💪</h1>
+    </header>
+
+    <!-- الشاشة الرئيسية -->
+    <div id="home-screen">
+        <button class="section-btn" onclick="startGame('thorax')">القفص الصدري (The Bony Thorax)</button>
+        <button class="section-btn" onclick="startGame('pelvis')">عظام الحوض (Pelvic Girdle)</button>
+        <button class="section-btn" onclick="startGame('spine')">العمود الفقري (Spinal Curves)</button>
+        <button class="section-btn" onclick="startGame('skull_lateral')">الجمجمة - الجانبية (Skull Lateral View)</button>
+        <button class="section-btn" onclick="startGame('skull_posterior')">الجمجمة - من الخلف (Skull Posterior View)</button>
+    </div>
+
+    <!-- شاشة اللعبة -->
+    <div id="game-screen">
+        <div class="game-header">
+            <span id="section-title" style="font-weight: bold;">العنوان</span>
+            <button class="back-btn" onclick="goHome()">العودة للقائمة 🔙</button>
+        </div>
+
+        <div class="image-container" id="img-container">
+            <!-- سيتم حقن الصورة والفراغات هنا برمجياً -->
+        </div>
+
+        <div class="options-container">
+            <div class="options-title">شريط الخيارات (اضغط على الكلمة ثم اضغط على الفراغ المناسب):</div>
+            <div class="options-list" id="options-list"></div>
+        </div>
+
+        <div class="action-buttons">
+            <button class="btn-submit" onclick="checkAnswers()">خلصنا.. اعطيني النتيجة! 🎯</button>
+            <button class="btn-reset" onclick="resetGame()">إعادة من جديد 🔄</button>
+        </div>
+
+        <div id="result-box"></div>
+    </div>
+</div>
+
+<script>
+    // بيانات الأقسام وشاملة لكل كلمة ومصطلح موجود في صور الكتاب بدون أي نقص
+    const sectionsData = {
+        thorax: {
+            title: "The Bony Thorax (القفص الصدري)",
+            image: "thorax.jpg.jpg",
+            zones: [
+                { id: 0, label: "Jugular notch", top: "27%", left: "55%" },
+                { id: 1, label: "Clavicular notch", top: "33%", left: "62%" },
+                { id: 2, label: "Manubrium", top: "40%", left: "57%" },
+                { id: 3, label: "Sternal angle", top: "44%", left: "57%" },
+                { id: 4, label: "Body", top: "49%", left: "57%" },
+                { id: 5, label: "Xiphisternal joint", top: "54%", left: "57%" },
+                { id: 6, label: "Xiphoid process", top: "59%", left: "57%" },
+                { id: 7, label: "Intercostal spaces", top: "53%", left: "65%" },
+                { id: 8, label: "Costal cartilage", top: "72%", left: "64%" },
+                { id: 9, label: "Costal margin", top: "78%", left: "64%" },
+                { id: 10, label: "True ribs (1-7)", top: "43%", left: "21%" },
+                { id: 11, label: "False ribs (8-12)", top: "49%", left: "22%" },
+                { id: 12, label: "Floating ribs (11, 12)", top: "88%", left: "30%" }
+            ]
+        },
+        pelvis: {
+            title: "Pelvic Girdle (عظام الحوض)",
+            image: "pelvis.jpg.jpg",
+            zones: [
+                { id: 0, label: "SACRUM", top: "25%", left: "71%" },
+                { id: 1, label: "COCCYX", top: "42%", left: "70%" },
+                { id: 2, label: "ILIUM", top: "55%", left: "69%" },
+                { id: 3, label: "PUBIS", top: "72%", left: "69%" },
+                { id: 4, label: "ISCHIUM", top: "86%", left: "69%" }
+            ]
+        },
+        spine: {
+            title: "Spinal Curves (العمود الفقري)",
+            image: "spine.jpg.jpg",
+            zones: [
+                { id: 0, label: "Cervical", top: "17%", left: "77%" },
+                { id: 1, label: "Thoracic", top: "31%", left: "78%" },
+                { id: 2, label: "Lumbar", top: "44%", left: "77%" },
+                { id: 3, label: "Sacral", top: "77%", left: "80%" },
+                { id: 4, label: "Coccygeal", top: "84%", left: "81%" }
+            ]
+        },
+        skull_lateral: {
+            title: "Skull - Lateral View (الجمجمة الجانبية)",
+            image: "skull_lateral.jpg.jpg",
+            zones: [
+                { id: 0, label: "Frontal bone", top: "10%", left: "91%" },
+                { id: 1, label: "Sphenoid bone (greater wing)", top: "16%", left: "93%" },
+                { id: 2, label: "Ethmoid bone", top: "22%", left: "91%" },
+                { id: 3, label: "Lacrimal bone", top: "26%", left: "91%" },
+                { id: 4, label: "Lacrimal fossa", top: "30%", left: "91%" },
+                { id: 5, label: "Nasal bone", top: "48%", left: "90%" },
+                { id: 6, label: "Zygomatic bone", top: "57%", left: "92%" },
+                { id: 7, label: "Maxilla", top: "62%", left: "89%" },
+                { id: 8, label: "Alveolar margins", top: "75%", left: "83%" },
+                { id: 9, label: "Mandible", top: "84%", left: "82%" },
+                { id: 10, label: "Mental foramen", top: "88%", left: "82%" },
+                { id: 11, label: "Coronoid process", top: "96%", left: "82%" },
+                { id: 12, label: "Mandibular angle", top: "96%", left: "55%" },
+                { id: 13, label: "Mandibular ramus", top: "90%", left: "37%" },
+                { id: 14, label: "Mandibular notch", top: "85%", left: "36%" },
+                { id: 15, label: "Mandibular condyle", top: "80%", left: "36%" },
+                { id: 16, label: "Styloid process", top: "76%", left: "22%" },
+                { id: 17, label: "Mastoid process", top: "72%", left: "21%" },
+                { id: 18, label: "External acoustic meatus", top: "67%", left: "16%" },
+                { id: 19, label: "Occipitomastoid suture", top: "62%", left: "18%" },
+                { id: 20, label: "Zygomatic process", top: "56%", left: "17%" },
+                { id: 21, label: "Occipital bone", top: "50%", left: "14%" },
+                { id: 22, label: "Squamous suture", top: "45%", left: "14%" },
+                { id: 23, label: "Lambdoid suture", top: "37%", left: "14%" },
+                { id: 24, label: "Temporal bone", top: "26%", left: "14%" },
+                { id: 25, label: "Parietal bone", top: "17%", left: "14%" },
+                { id: 26, label: "Coronal suture", top: "10%", left: "14%" }
+            ]
+        },
+        skull_posterior: {
+            title: "Skull - Posterior View (الجمجمة من الخلف)",
+            image: "skull_posterior.jpg.jpg",
+            zones: [
+                { id: 0, label: "Parietal bone", top: "17%", left: "85%" },
+                { id: 1, label: "Sagittal suture", top: "13%", left: "67%" },
+                { id: 2, label: "Sutural bone", top: "26%", left: "30%" },
+                { id: 3, label: "Lambdoid suture", top: "38%", left: "22%" },
+                { id: 4, label: "Occipital bone", top: "48%", left: "22%" },
+                { id: 5, label: "Superior nuchal line", top: "62%", left: "26%" },
+                { id: 6, label: "External occipital protuberance", top: "67%", left: "18%" },
+                { id: 7, label: "Occipitomastoid suture", top: "86%", left: "25%" },
+                { id: 8, label: "External occipital crest", top: "95%", left: "41%" },
+                { id: 9, label: "Occipital condyle", top: "90%", left: "59%" },
+                { id: 10, label: "Inferior nuchal line", top: "79%", left: "79%" },
+                { id: 11, label: "Mastoid process", top: "76%", left: "83%" }
+            ]
+        }
+    };
+
+    let currentSection = null;
+    let selectedOption = null;
+    let userAnswers = {};
+
+    function startGame(sectionKey) {
+        currentSection = sectionsData[sectionKey];
+        userAnswers = {};
+        selectedOption = null;
+
+        document.getElementById('home-screen').style.display = 'none';
+        document.getElementById('game-screen').style.display = 'flex';
+        document.getElementById('section-title').innerText = currentSection.title;
+        document.getElementById('result-box').style.display = 'none';
+
+        const imgContainer = document.getElementById('img-container');
+        imgContainer.innerHTML = `<img src="${currentSection.image}" alt="Anatomy Image">`;
+
+        currentSection.zones.forEach(zone => {
+            const zoneEl = document.createElement('div');
+            zoneEl.className = 'drop-zone';
+            zoneEl.innerText = "فراغ";
+            zoneEl.style.top = zone.top;
+            zoneEl.style.left = zone.left;
+            zoneEl.dataset.id = zone.id;
+            zoneEl.onclick = () => handleZoneClick(zone.id, zoneEl);
+            imgContainer.appendChild(zoneEl);
+        });
+
+        renderOptions();
+    }
+
+    function renderOptions() {
+        const optionsList = document.getElementById('options-list');
+        optionsList.innerHTML = '';
+
+        let options = currentSection.zones.map(z => z.label);
+        options.sort(() => Math.random() - 0.5);
+
+        options.forEach(optText => {
+            const optEl = document.createElement('div');
+            optEl.className = 'option-item';
+            optEl.innerText = optText;
+            optEl.onclick = () => selectOption(optText, optEl);
+            optionsList.appendChild(optEl);
+        });
+    }
+
+    function selectOption(text, element) {
+        document.querySelectorAll('.option-item').forEach(el => el.classList.remove('selected'));
+        element.classList.add('selected');
+        selectedOption = { text, element };
+    }
+
+    function handleZoneClick(zoneId, zoneElement) {
+        if (!selectedOption) return;
+
+        Object.keys(userAnswers).forEach(key => {
+            if (userAnswers[key] === selectedOption.text) {
+                delete userAnswers[key];
+                document.querySelectorAll('.drop-zone').forEach(z => {
+                    if (z.dataset.id == key) z.innerText = "فراغ";
+                });
+            }
+        });
+
+        userAnswers[zoneId] = selectedOption.text;
+        zoneElement.innerText = selectedOption.text;
+        
+        document.querySelectorAll('.option-item').forEach(el => {
+            if (el.innerText === selectedOption.text) {
+                el.classList.add('used');
+                el.classList.remove('selected');
+            }
+        });
+
+        selectedOption = null;
+    }
+
+    function checkAnswers() {
+        let correctCount = 0;
+        let total = currentSection.zones.length;
+
+        currentSection.zones.forEach(zone => {
+            const zoneEl = document.querySelector(`.drop-zone[data-id="${zone.id}"]`);
+            const userAns = userAnswers[zone.id];
+
+            if (userAns === zone.label) {
+                zoneEl.className = 'drop-zone correct';
+                correctCount++;
+            } else {
+                zoneEl.className = 'drop-zone incorrect';
+            }
+        });
+
+        const resultBox = document.getElementById('result-box');
+        resultBox.style.display = 'block';
+        if (correctCount === total) {
+            resultBox.style.backgroundColor = '#d4edda';
+            resultBox.style.color = '#155724';
+            resultBox.innerText = `🔥 كفوو! إجاباتك صحيحة مية بالمية! نتيجتك: ${correctCount} من ${total} 🌟`;
+        } else {
+            resultBox.style.backgroundColor = '#f8d7da';
+            resultBox.style.color = '#721c24';
+            resultBox.innerText = `⚠️ خلصت التدريب. نتيجتك: ${correctCount} من ${total} (شوف الأماكن الغلط باللون الأحمر وراقبها)`;
+        }
+    }
+
+    function resetGame() {
+        let currentKey = Object.keys(sectionsData).find(key => sectionsData[key].title === currentSection.title);
+        startGame(currentKey);
+    }
+
+    function goHome() {
+        document.getElementById('game-screen').style.display = 'none';
+        document.getElementById('home-screen').style.display = 'flex';
+    }
+</script>
+
+</body>
+      </html>
+  
